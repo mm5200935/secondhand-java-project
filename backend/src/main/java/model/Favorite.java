@@ -29,4 +29,16 @@ public class Favorite {
         this.advertisement = adv;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    public Advertisement getAdvertisement() {
+        return advertisement;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
 }

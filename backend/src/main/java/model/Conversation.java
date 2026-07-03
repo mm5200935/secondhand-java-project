@@ -65,7 +65,21 @@ public class Conversation {
         this.id = id;
     }
 
+    public Advertisement getAdvertisement() {
+        return advertisement;
+    }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setAdvertisement(Advertisement advertisement) {
+        this.advertisement = advertisement;
+    }
 
 
 }

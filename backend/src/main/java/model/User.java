@@ -58,7 +58,7 @@ public class User {
     }
 
     public String getPassword() {
-         return this.password;
+        return this.password;
     }
 
     public void setPassword(String pass) {
@@ -66,7 +66,7 @@ public class User {
     }
 
     public boolean isBlocked() {
-        return this.isBlocked();
+        return status == UserStatus.BLOCKED;
     }
 
     public int getId() {
@@ -75,6 +75,59 @@ public class User {
 
     public void setStatus(UserStatus status) {
         this.status = status;
+    }
+
+    public String getFullName() {
+        return this.firstName + " " + this.lastName;
+    }
+
+    public String getEmail() {
+        return this.email;
+    }
+
+    public String getPhone() {
+        return this.phoneNumber;
+    }
+
+    public UserRole getRole() {
+        return this.role;
+    }
+
+    public UserStatus getStatus() {
+        return this.status;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setFullName(String fullName) {
+
+        String[] parts = fullName.trim().split("\\s+", 2);
+
+        this.firstName = parts[0];
+
+        if (parts.length > 1) {
+            this.lastName = parts[1];
+        } else {
+            this.lastName = "";
+        }
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPhone(String phone) {
+        this.phoneNumber = phone;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
     }
 
 

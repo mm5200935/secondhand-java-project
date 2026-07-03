@@ -60,6 +60,30 @@ public class Rating {
         return this.score;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public User getSeller() {
+        return seller;
+    }
+
+    public Advertisement getAdvertisement() {
+        return advertisement;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
 
 
 }
