@@ -1,9 +1,9 @@
-package service.interfaces;
+package app.service.interfaces;
 
-import model.Advertisement;
-import model.Conversation;
-import model.Message;
-import model.User;
+import app.model.Advertisement;
+import app.model.Conversation;
+import app.model.Message;
+import app.model.User;
 
 import java.util.List;
 

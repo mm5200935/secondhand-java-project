@@ -1,6 +1,6 @@
-package service.interfaces;
-import model.Advertisement;
-import model.User;
+package app.service.interfaces;
+import app.model.Advertisement;
+import app.model.User;
 import java.util.List;
 
 public interface AdminService {

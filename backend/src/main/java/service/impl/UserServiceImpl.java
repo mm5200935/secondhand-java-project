@@ -1,9 +1,16 @@
-package service.impl;
-import model.User;
-import repository.interfaces.UserRepository;
-import service.interfaces.UserService;
+package app.service.impl;
+
+import app.model.User;
+import app.exception.ResourceNotFoundException;
+import app.repository.interfaces.UserRepository;
+import app.service.interfaces.UserService;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.List;
 
+@Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -12,12 +19,14 @@ public class UserServiceImpl implements UserService {
         this.userRepository = userRepository;
     }
 
-
     @Override
     public User register(User user) {
 
         if (userRepository.existsByUsername(user.getUsername())) {
-            throw new RuntimeException("Username already exists");
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Username already exists"
+            );
         }
 
         return userRepository.save(user);
@@ -29,15 +38,24 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByUsername(username);
 
         if (user == null) {
-            throw new RuntimeException("User not found");
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "User not found"
+            );
         }
 
         if (!user.getPassword().equals(password)) {
-            throw new RuntimeException("Wrong password");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Wrong password"
+            );
         }
 
         if (user.isBlocked()) {
-            throw new RuntimeException("User is blocked");
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "User is blocked"
+            );
         }
 
         return user;
@@ -45,11 +63,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void logout(User user) {
+        //oprtional
     }
 
     @Override
     public User findById(int id) {
-        return userRepository.findById(id);
+        User user = userRepository.findById(id);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found.");
+        }
+        return user;
     }
 
     @Override
@@ -73,7 +96,10 @@ public class UserServiceImpl implements UserService {
                                String newPassword) {
 
         if (!user.getPassword().equals(oldPassword)) {
-            throw new RuntimeException("Old password is incorrect");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Old password is incorrect"
+            );
         }
 
         user.setPassword(newPassword);

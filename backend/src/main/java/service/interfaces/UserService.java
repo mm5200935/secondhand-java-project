@@ -1,5 +1,5 @@
-package service.interfaces;
-import model.User;
+package app.service.interfaces;
+import app.model.User;
 import java.util.List;
 
 public interface UserService {

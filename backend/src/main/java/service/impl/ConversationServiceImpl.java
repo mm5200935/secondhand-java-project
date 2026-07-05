@@ -1,14 +1,17 @@
-package service.impl;
-import model.Advertisement;
-import model.Conversation;
-import model.Message;
-import model.User;
-import repository.interfaces.ConversationRepository;
-import repository.interfaces.MessageRepository;
-import service.interfaces.ConversationService;
+package app.service.impl;
+import app.model.Advertisement;
+import app.model.Conversation;
+import app.model.Message;
+import app.model.User;
+import app.repository.interfaces.ConversationRepository;
+import app.repository.interfaces.MessageRepository;
+import app.service.interfaces.ConversationService;
+import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Service
 public class ConversationServiceImpl implements ConversationService {
 
     private final ConversationRepository conversationRepository;
@@ -42,6 +45,7 @@ public class ConversationServiceImpl implements ConversationService {
         conversation = new Conversation();
         conversation.setBuyer(buyer);
         conversation.setSeller(seller);
+        conversation.setAdvertisement(advertisement);
         conversation.setClosed(false);
 
         return conversationRepository.save(conversation);

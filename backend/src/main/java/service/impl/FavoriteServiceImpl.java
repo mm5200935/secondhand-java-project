@@ -1,12 +1,14 @@
-package service.impl;
-import model.Advertisement;
-import model.Favorite;
-import model.User;
-import repository.interfaces.FavoriteRepository;
-import service.interfaces.FavoriteService;
+package app.service.impl;
+import app.model.Advertisement;
+import app.model.Favorite;
+import app.model.User;
+import app.repository.interfaces.FavoriteRepository;
+import app.service.interfaces.FavoriteService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class FavoriteServiceImpl implements FavoriteService {
 
     private final FavoriteRepository favoriteRepository;

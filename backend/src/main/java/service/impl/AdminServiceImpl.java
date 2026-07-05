@@ -1,15 +1,16 @@
-package service.impl;
+package app.service.impl;
 
-import enums.AdvertisementStatus;
-import enums.UserStatus;
-import model.Advertisement;
-import model.User;
-import repository.interfaces.AdvertisementRepository;
-import repository.interfaces.UserRepository;
-import service.interfaces.AdminService;
+import app.enums.AdvertisementStatus;
+import app.enums.UserStatus;
+import app.model.Advertisement;
+import app.model.User;
+import app.repository.interfaces.AdvertisementRepository;
+import app.repository.interfaces.UserRepository;
+import app.service.interfaces.AdminService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-
+@Service
 public class AdminServiceImpl implements AdminService {
 
     private final UserRepository userRepository;
@@ -64,8 +65,10 @@ public class AdminServiceImpl implements AdminService {
             throw new RuntimeException("Advertisement not found.");
         }
 
-        advertisement.setStatus(AdvertisementStatus.ACTIVE);
-        advertisementRepository.update(advertisement);
+        advertisementRepository.updateStatus(
+                advertisement.getId(),
+                AdvertisementStatus.ACTIVE
+        );
     }
 
     @Override
@@ -75,8 +78,10 @@ public class AdminServiceImpl implements AdminService {
             throw new RuntimeException("Advertisement not found.");
         }
 
-        advertisement.setStatus(AdvertisementStatus.REJECTED);
-        advertisementRepository.update(advertisement);
+        advertisementRepository.updateStatus(
+                advertisement.getId(),
+                AdvertisementStatus.REJECTED
+        );
     }
 
     @Override
@@ -86,8 +91,10 @@ public class AdminServiceImpl implements AdminService {
             throw new RuntimeException("Advertisement not found.");
         }
 
-        advertisement.setStatus(AdvertisementStatus.DELETED);
-        advertisementRepository.update(advertisement);
+        advertisementRepository.updateStatus(
+                advertisement.getId(),
+                AdvertisementStatus.DELETED
+        );
     }
 
     @Override

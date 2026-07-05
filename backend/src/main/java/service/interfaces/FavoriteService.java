@@ -1,8 +1,8 @@
-package service.interfaces;
+package app.service.interfaces;
 
-import model.Advertisement;
-import model.Favorite;
-import model.User;
+import app.model.Advertisement;
+import app.model.Favorite;
+import app.model.User;
 
 import java.util.List;
 

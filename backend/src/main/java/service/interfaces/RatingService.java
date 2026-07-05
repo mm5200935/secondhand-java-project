@@ -1,7 +1,7 @@
-package service.interfaces;
-import model.Advertisement;
-import model.Rating;
-import model.User;
+package app.service.interfaces;
+import app.model.Advertisement;
+import app.model.Rating;
+import app.model.User;
 import java.util.List;
 
 public interface RatingService {

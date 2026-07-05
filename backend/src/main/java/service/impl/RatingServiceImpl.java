@@ -1,12 +1,14 @@
-package service.impl;
-import model.Advertisement;
-import model.Rating;
-import model.User;
-import repository.interfaces.RatingRepository;
-import service.interfaces.RatingService;
+package app.service.impl;
+import app.model.Advertisement;
+import app.model.Rating;
+import app.model.User;
+import app.repository.interfaces.RatingRepository;
+import app.service.interfaces.RatingService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class RatingServiceImpl implements RatingService {
 
     private final RatingRepository ratingRepository;

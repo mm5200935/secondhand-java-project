@@ -1,9 +1,9 @@
-package service.interfaces;
+package app.service.interfaces;
 
-import enums.AdvertisementStatus;
-import model.Advertisement;
-import model.User;
-import enums.SortType;
+import app.enums.AdvertisementStatus;
+import app.model.Advertisement;
+import app.model.User;
+import app.enums.SortType;
 
 import java.util.List;
 
