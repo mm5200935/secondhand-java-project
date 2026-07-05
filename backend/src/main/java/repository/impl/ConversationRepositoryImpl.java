@@ -1,27 +1,28 @@
-package repository.impl;
-
-import database.DatabaseManager;
-import model.Advertisement;
-import model.Conversation;
-import model.User;
-import repository.interfaces.ConversationRepository;
-import repository.interfaces.UserRepository;
-import repository.interfaces.AdvertisementRepository;
-
+package app.repository.impl;
+import app.database.DatabaseManager;
+import app.model.Advertisement;
+import app.model.Conversation;
+import app.model.User;
+import app.repository.interfaces.AdvertisementRepository;
+import app.repository.interfaces.ConversationRepository;
+import app.repository.interfaces.UserRepository;
+import org.springframework.stereotype.Repository;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class ConversationRepositoryImpl implements ConversationRepository {
 
     private final UserRepository userRepository;
     private final AdvertisementRepository advertisementRepository;
 
-    public ConversationRepositoryImpl() {
-        this.userRepository = new UserRepositoryImpl();
-        this.advertisementRepository = new AdvertisementRepositoryImpl();
-    }
+    public ConversationRepositoryImpl(UserRepository userRepository,
+                                      AdvertisementRepository advertisementRepository) {
 
+        this.userRepository = userRepository;
+        this.advertisementRepository = advertisementRepository;
+    }
 
     @Override
     public Conversation save(Conversation conversation) {
@@ -58,7 +59,6 @@ public class ConversationRepositoryImpl implements ConversationRepository {
         }
     }
 
-
     @Override
     public Conversation update(Conversation conversation) {
 
@@ -86,7 +86,6 @@ public class ConversationRepositoryImpl implements ConversationRepository {
         }
     }
 
-
     @Override
     public void delete(int conversationId) {
 
@@ -99,13 +98,13 @@ public class ConversationRepositoryImpl implements ConversationRepository {
         ) {
 
             statement.setInt(1, conversationId);
+
             statement.executeUpdate();
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
-
 
     @Override
     public Conversation findById(int conversationId) {
@@ -133,13 +132,12 @@ public class ConversationRepositoryImpl implements ConversationRepository {
         }
     }
 
-
     @Override
     public List<Conversation> findAll() {
 
         String sql = "SELECT * FROM conversations";
 
-        List<Conversation> list = new ArrayList<>();
+        List<Conversation> conversations = new ArrayList<>();
 
         try (
                 Connection connection = DatabaseManager.getConnection();
@@ -149,26 +147,27 @@ public class ConversationRepositoryImpl implements ConversationRepository {
         ) {
 
             while (rs.next()) {
-                list.add(mapConversation(rs));
+                conversations.add(mapConversation(rs));
             }
 
-            return list;
+            return conversations;
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-
     @Override
     public List<Conversation> findByUserId(int userId) {
 
         String sql = """
-                SELECT * FROM conversations
-                WHERE buyer_id = ? OR seller_id = ?
+                SELECT *
+                FROM conversations
+                WHERE buyer_id = ?
+                   OR seller_id = ?
                 """;
 
-        List<Conversation> list = new ArrayList<>();
+        List<Conversation> conversations = new ArrayList<>();
 
         try (
                 Connection connection = DatabaseManager.getConnection();
@@ -182,22 +181,24 @@ public class ConversationRepositoryImpl implements ConversationRepository {
             ResultSet rs = statement.executeQuery();
 
             while (rs.next()) {
-                list.add(mapConversation(rs));
+                conversations.add(mapConversation(rs));
             }
 
-            return list;
+            return conversations;
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-
     @Override
-    public Conversation findByUsersAndAdvertisement(int buyerId, int sellerId, int advertisementId) {
+    public Conversation findByUsersAndAdvertisement(int buyerId,
+                                                    int sellerId,
+                                                    int advertisementId) {
 
         String sql = """
-                SELECT * FROM conversations
+                SELECT *
+                FROM conversations
                 WHERE buyer_id = ?
                   AND seller_id = ?
                   AND advertisement_id = ?
@@ -226,23 +227,22 @@ public class ConversationRepositoryImpl implements ConversationRepository {
         }
     }
 
-
     private Conversation mapConversation(ResultSet rs) throws SQLException {
 
         Conversation conversation = new Conversation();
 
         int buyerId = rs.getInt("buyer_id");
         int sellerId = rs.getInt("seller_id");
-        int adId = rs.getInt("advertisement_id");
+        int advertisementId = rs.getInt("advertisement_id");
 
         User buyer = userRepository.findById(buyerId);
         User seller = userRepository.findById(sellerId);
-        Advertisement ad = advertisementRepository.findById(adId);
+        Advertisement advertisement = advertisementRepository.findById(advertisementId);
 
         conversation.setId(rs.getInt("id"));
         conversation.setBuyer(buyer);
         conversation.setSeller(seller);
-        conversation.setAdvertisement(ad);
+        conversation.setAdvertisement(advertisement);
         conversation.setClosed(rs.getInt("closed") == 1);
 
         return conversation;

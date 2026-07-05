@@ -1,27 +1,39 @@
-package repository.impl;
-
-import database.DatabaseManager;
-import model.Advertisement;
-import model.Rating;
-import model.User;
-import repository.interfaces.AdvertisementRepository;
-import repository.interfaces.RatingRepository;
-import repository.interfaces.UserRepository;
-
+package app.repository.impl;
+import app.database.DatabaseManager;
+import app.model.Advertisement;
+import app.model.Rating;
+import app.model.User;
+import app.repository.interfaces.AdvertisementRepository;
+import app.repository.interfaces.CategoryRepository;
+import app.repository.interfaces.CityRepository;
+import app.repository.interfaces.RatingRepository;
+import app.repository.interfaces.UserRepository;
+import org.springframework.stereotype.Repository;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class RatingRepositoryImpl implements RatingRepository {
 
     private final UserRepository userRepository;
     private final AdvertisementRepository advertisementRepository;
+    private final CategoryRepository categoryRepository;
+    private final CityRepository cityRepository;
 
     public RatingRepositoryImpl() {
-        this.userRepository = new UserRepositoryImpl();
-        this.advertisementRepository = new AdvertisementRepositoryImpl();
-    }
 
+        this.userRepository = new UserRepositoryImpl();
+        this.categoryRepository = new CategoryRepositoryImpl();
+        this.cityRepository = new CityRepositoryImpl();
+
+        this.advertisementRepository =
+                new AdvertisementRepositoryImpl(
+                        userRepository,
+                        categoryRepository,
+                        cityRepository
+                );
+    }
 
     @Override
     public Rating save(Rating rating) {
@@ -59,7 +71,6 @@ public class RatingRepositoryImpl implements RatingRepository {
         }
     }
 
-
     @Override
     public Rating update(Rating rating) {
 
@@ -89,7 +100,6 @@ public class RatingRepositoryImpl implements RatingRepository {
         }
     }
 
-
     @Override
     public void delete(int ratingId) {
 
@@ -108,7 +118,6 @@ public class RatingRepositoryImpl implements RatingRepository {
             throw new RuntimeException(e);
         }
     }
-
 
     @Override
     public Rating findById(int ratingId) {
@@ -136,7 +145,6 @@ public class RatingRepositoryImpl implements RatingRepository {
         }
     }
 
-
     @Override
     public List<Rating> findAll() {
 
@@ -161,7 +169,6 @@ public class RatingRepositoryImpl implements RatingRepository {
             throw new RuntimeException(e);
         }
     }
-
 
     @Override
     public List<Rating> findBySellerId(int sellerId) {
@@ -191,7 +198,6 @@ public class RatingRepositoryImpl implements RatingRepository {
         }
     }
 
-
     @Override
     public List<Rating> findByBuyerId(int buyerId) {
 
@@ -219,7 +225,6 @@ public class RatingRepositoryImpl implements RatingRepository {
             throw new RuntimeException(e);
         }
     }
-
 
     @Override
     public List<Rating> findByAdvertisementId(int advertisementId) {
@@ -249,7 +254,6 @@ public class RatingRepositoryImpl implements RatingRepository {
         }
     }
 
-
     @Override
     public boolean existsByBuyerIdAndAdvertisementId(int buyerId, int advertisementId) {
 
@@ -276,23 +280,19 @@ public class RatingRepositoryImpl implements RatingRepository {
         }
     }
 
-
     private Rating mapRating(ResultSet rs) throws SQLException {
 
         Rating rating = new Rating();
 
-        int buyerId = rs.getInt("buyer_id");
-        int sellerId = rs.getInt("seller_id");
-        int adId = rs.getInt("advertisement_id");
-
-        User buyer = userRepository.findById(buyerId);
-        User seller = userRepository.findById(sellerId);
-        Advertisement ad = advertisementRepository.findById(adId);
+        User buyer = userRepository.findById(rs.getInt("buyer_id"));
+        User seller = userRepository.findById(rs.getInt("seller_id"));
+        Advertisement advertisement =
+                advertisementRepository.findById(rs.getInt("advertisement_id"));
 
         rating.setId(rs.getInt("id"));
         rating.setBuyer(buyer);
         rating.setSeller(seller);
-        rating.setAdvertisement(ad);
+        rating.setAdvertisement(advertisement);
         rating.setScore(rs.getInt("score"));
         rating.setComment(rs.getString("comment"));
 

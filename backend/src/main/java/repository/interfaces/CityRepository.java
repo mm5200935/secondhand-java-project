@@ -1,6 +1,6 @@
-package repository.interfaces;
+package app.repository.interfaces;
 
-import model.City;
+import app.model.City;
 
 import java.util.List;
 

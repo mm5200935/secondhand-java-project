@@ -1,6 +1,6 @@
-package repository.interfaces;
+package app.repository.interfaces;
 
-import model.Conversation;
+import app.model.Conversation;
 
 import java.util.List;
 

@@ -1,31 +1,34 @@
-package repository.impl;
-
-import database.DatabaseManager;
-import enums.AdvertisementStatus;
-import model.Advertisement;
-import model.Category;
-import model.City;
-import model.User;
-import repository.interfaces.AdvertisementRepository;
-import repository.interfaces.CategoryRepository;
-import repository.interfaces.CityRepository;
-import repository.interfaces.UserRepository;
-
+package app.repository.impl;
+import app.database.DatabaseManager;
+import app.enums.AdvertisementStatus;
+import app.model.Advertisement;
+import app.model.Category;
+import app.model.City;
+import app.model.User;
+import app.repository.interfaces.AdvertisementRepository;
+import app.repository.interfaces.CategoryRepository;
+import app.repository.interfaces.CityRepository;
+import app.repository.interfaces.UserRepository;
+import org.springframework.stereotype.Repository;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ArrayList;
 
+@Repository
 public class AdvertisementRepositoryImpl implements AdvertisementRepository {
 
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final CityRepository cityRepository;
 
-    public AdvertisementRepositoryImpl() {
-        userRepository = new UserRepositoryImpl();
-        categoryRepository = new CategoryRepositoryImpl();
-        cityRepository = new CityRepositoryImpl();
+    public AdvertisementRepositoryImpl(UserRepository userRepository,
+                                       CategoryRepository categoryRepository,
+                                       CityRepository cityRepository) {
+
+        this.userRepository = userRepository;
+        this.categoryRepository = categoryRepository;
+        this.cityRepository = cityRepository;
     }
 
     @Override
@@ -101,19 +104,67 @@ public class AdvertisementRepositoryImpl implements AdvertisementRepository {
     @Override
     public Advertisement update(Advertisement advertisement) {
 
+        if (advertisement.getOwner() == null)
+            throw new RuntimeException("Owner is required");
+
+        if (advertisement.getCategory() == null)
+            throw new RuntimeException("Category is required");
+
+        if (advertisement.getCity() == null)
+            throw new RuntimeException("City is required");
+
         String sql = """
-                UPDATE advertisements
-                SET title = ?,
-                    description = ?,
-                    price = ?,
-                    negotiable = ?,
-                    status = ?,
-                    updated_at = ?,
-                    seller_id = ?,
-                    category_id = ?,
-                    city_id = ?
-                WHERE id = ?
-                """;
+            UPDATE advertisements
+            SET title = ?,
+                description = ?,
+                price = ?,
+                negotiable = ?,
+                status = ?,
+                updated_at = ?,
+                seller_id = ?,
+                category_id = ?,
+                city_id = ?
+            WHERE id = ?
+            """;
+
+        try (
+                Connection connection = DatabaseManager.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)
+        ) {
+
+            statement.setString(1, advertisement.getTitle());
+            statement.setString(2, advertisement.getDescription());
+            statement.setDouble(3, advertisement.getPrice());
+            statement.setBoolean(4, advertisement.isNegotiable());
+            statement.setString(5, advertisement.getStatus().name());
+            statement.setString(6, LocalDateTime.now().toString());
+            statement.setInt(7, advertisement.getOwner().getId());
+            statement.setInt(8, advertisement.getCategory().getId());
+            statement.setInt(9, advertisement.getCity().getId());
+            statement.setInt(10, advertisement.getId());
+
+            int rows = statement.executeUpdate();
+
+            if (rows == 0) {
+                throw new RuntimeException("Advertisement not found");
+            }
+
+            return advertisement;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void updateStatus(int advertisementId, AdvertisementStatus status) {
+
+        String sql = """
+            UPDATE advertisements
+            SET status = ?,
+                updated_at = ?
+            WHERE id = ?
+            """;
 
         try (
                 Connection connection = DatabaseManager.getConnection();
@@ -121,44 +172,15 @@ public class AdvertisementRepositoryImpl implements AdvertisementRepository {
                         connection.prepareStatement(sql)
         ) {
 
-            statement.setString(1, advertisement.getTitle());
-            statement.setString(2, advertisement.getDescription());
-            statement.setDouble(3, advertisement.getPrice());
-            statement.setBoolean(4, advertisement.isNegotiable());
+            statement.setString(1, status.name());
+            statement.setString(2, LocalDateTime.now().toString());
+            statement.setInt(3, advertisementId);
 
-            statement.setString(
-                    5,
-                    advertisement.getStatus().name()
-            );
+            int rows = statement.executeUpdate();
 
-            statement.setString(
-                    6,
-                    LocalDateTime.now().toString()
-            );
-
-            statement.setInt(
-                    7,
-                    advertisement.getOwner().getId()
-            );
-
-            statement.setInt(
-                    8,
-                    advertisement.getCategory().getId()
-            );
-
-            statement.setInt(
-                    9,
-                    advertisement.getCity().getId()
-            );
-
-            statement.setInt(
-                    10,
-                    advertisement.getId()
-            );
-
-            statement.executeUpdate();
-
-            return advertisement;
+            if (rows == 0) {
+                throw new RuntimeException("Advertisement not found.");
+            }
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -320,7 +342,7 @@ public class AdvertisementRepositoryImpl implements AdvertisementRepository {
     }
 
     @Override
-    public List<Advertisement> findByStatus(enums.AdvertisementStatus status) {
+    public List<Advertisement> findByStatus(AdvertisementStatus status) {
 
         String sql = "SELECT * FROM advertisements WHERE status = ?";
 
@@ -395,7 +417,7 @@ public class AdvertisementRepositoryImpl implements AdvertisementRepository {
         ad.setNegotiable(rs.getInt("negotiable") == 1);
 
         ad.setStatus(
-                enums.AdvertisementStatus.valueOf(rs.getString("status"))
+                AdvertisementStatus.valueOf(rs.getString("status"))
         );
 
         ad.setCreatedAt(
@@ -410,9 +432,9 @@ public class AdvertisementRepositoryImpl implements AdvertisementRepository {
         int categoryId = rs.getInt("category_id");
         int cityId = rs.getInt("city_id");
 
-        User seller = new repository.impl.UserRepositoryImpl().findById(sellerId);
-        Category category = new repository.impl.CategoryRepositoryImpl().findById(categoryId);
-        City city = new repository.impl.CityRepositoryImpl().findById(cityId);
+        User seller = userRepository.findById(sellerId);
+        Category category = categoryRepository.findById(categoryId);
+        City city = cityRepository.findById(cityId);
 
         ad.setOwner(seller);
         ad.setCategory(category);

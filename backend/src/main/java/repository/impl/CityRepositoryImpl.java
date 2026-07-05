@@ -1,13 +1,13 @@
-package repository.impl;
-
-import database.DatabaseManager;
-import model.City;
-import repository.interfaces.CityRepository;
-
+package app.repository.impl;
+import app.database.DatabaseManager;
+import app.model.City;
+import app.repository.interfaces.CityRepository;
+import org.springframework.stereotype.Repository;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class CityRepositoryImpl implements CityRepository {
 
     @Override

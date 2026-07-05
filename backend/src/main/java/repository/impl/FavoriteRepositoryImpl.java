@@ -1,36 +1,46 @@
-package repository.impl;
-
-import database.DatabaseManager;
-import model.Advertisement;
-import model.Favorite;
-import model.User;
-import repository.interfaces.FavoriteRepository;
-import repository.interfaces.UserRepository;
-import repository.interfaces.AdvertisementRepository;
-
+package app.repository.impl;
+import app.database.DatabaseManager;
+import app.model.Advertisement;
+import app.model.Favorite;
+import app.model.User;
+import app.repository.interfaces.AdvertisementRepository;
+import app.repository.interfaces.CategoryRepository;
+import app.repository.interfaces.CityRepository;
+import app.repository.interfaces.FavoriteRepository;
+import app.repository.interfaces.UserRepository;
+import org.springframework.stereotype.Repository;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class FavoriteRepositoryImpl implements FavoriteRepository {
 
     private final UserRepository userRepository;
     private final AdvertisementRepository advertisementRepository;
+    private final CategoryRepository categoryRepository;
+    private final CityRepository cityRepository;
 
     public FavoriteRepositoryImpl() {
-        this.userRepository = new UserRepositoryImpl();
-        this.advertisementRepository = new AdvertisementRepositoryImpl();
-    }
 
+        this.userRepository = new UserRepositoryImpl();
+        this.categoryRepository = new CategoryRepositoryImpl();
+        this.cityRepository = new CityRepositoryImpl();
+
+        this.advertisementRepository =
+                new AdvertisementRepositoryImpl(
+                        userRepository,
+                        categoryRepository,
+                        cityRepository
+                );
+    }
 
     @Override
     public Favorite save(Favorite favorite) {
 
-        // جلوگیری از duplicate
         if (existsByUserIdAndAdvertisementId(
                 favorite.getUser().getId(),
-                favorite.getAdvertisement().getId()
-        )) {
+                favorite.getAdvertisement().getId())) {
             return favorite;
         }
 
@@ -63,7 +73,6 @@ public class FavoriteRepositoryImpl implements FavoriteRepository {
         }
     }
 
-
     @Override
     public void delete(int favoriteId) {
 
@@ -82,7 +91,6 @@ public class FavoriteRepositoryImpl implements FavoriteRepository {
             throw new RuntimeException(e);
         }
     }
-
 
     @Override
     public void deleteByUserIdAndAdvertisementId(int userId, int advertisementId) {
@@ -107,7 +115,6 @@ public class FavoriteRepositoryImpl implements FavoriteRepository {
             throw new RuntimeException(e);
         }
     }
-
 
     @Override
     public Favorite findById(int favoriteId) {
@@ -135,7 +142,6 @@ public class FavoriteRepositoryImpl implements FavoriteRepository {
         }
     }
 
-
     @Override
     public List<Favorite> findAll() {
 
@@ -160,7 +166,6 @@ public class FavoriteRepositoryImpl implements FavoriteRepository {
             throw new RuntimeException(e);
         }
     }
-
 
     @Override
     public List<Favorite> findByUserId(int userId) {
@@ -190,7 +195,6 @@ public class FavoriteRepositoryImpl implements FavoriteRepository {
         }
     }
 
-
     @Override
     public boolean existsByUserIdAndAdvertisementId(int userId, int advertisementId) {
 
@@ -217,20 +221,17 @@ public class FavoriteRepositoryImpl implements FavoriteRepository {
         }
     }
 
-
     private Favorite mapFavorite(ResultSet rs) throws SQLException {
 
         Favorite favorite = new Favorite();
 
-        int userId = rs.getInt("user_id");
-        int adId = rs.getInt("advertisement_id");
-
-        User user = userRepository.findById(userId);
-        Advertisement ad = advertisementRepository.findById(adId);
+        User user = userRepository.findById(rs.getInt("user_id"));
+        Advertisement advertisement =
+                advertisementRepository.findById(rs.getInt("advertisement_id"));
 
         favorite.setId(rs.getInt("id"));
         favorite.setUser(user);
-        favorite.setAdvertisement(ad);
+        favorite.setAdvertisement(advertisement);
 
         return favorite;
     }

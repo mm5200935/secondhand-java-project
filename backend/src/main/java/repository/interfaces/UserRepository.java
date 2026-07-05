@@ -1,5 +1,5 @@
-package repository.interfaces;
-import model.User;
+package app.repository.interfaces;
+import app.model.User;
 import java.util.List;
 
 public interface UserRepository {

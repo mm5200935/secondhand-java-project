@@ -1,6 +1,8 @@
-package repository.interfaces;
-import model.Advertisement;
-import enums.AdvertisementStatus;
+package app.repository.interfaces;
+
+import app.enums.AdvertisementStatus;
+import app.model.Advertisement;
+
 import java.util.List;
 
 public interface AdvertisementRepository {
@@ -8,6 +10,9 @@ public interface AdvertisementRepository {
     Advertisement save(Advertisement advertisement);
 
     Advertisement update(Advertisement advertisement);
+
+
+    void updateStatus(int advertisementId, AdvertisementStatus status);
 
     void delete(int advertisementId);
 

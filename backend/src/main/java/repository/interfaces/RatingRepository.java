@@ -1,6 +1,6 @@
-package repository.interfaces;
+package app.repository.interfaces;
 
-import model.Rating;
+import app.model.Rating;
 
 import java.util.List;
 

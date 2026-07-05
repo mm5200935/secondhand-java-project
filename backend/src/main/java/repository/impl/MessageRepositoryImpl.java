@@ -1,15 +1,15 @@
-package repository.impl;
-
-import database.DatabaseManager;
-import model.Message;
-import model.User;
-import repository.interfaces.MessageRepository;
-import repository.interfaces.UserRepository;
-
+package app.repository.impl;
+import app.database.DatabaseManager;
+import app.model.Message;
+import app.model.User;
+import app.repository.interfaces.MessageRepository;
+import app.repository.interfaces.UserRepository;
+import org.springframework.stereotype.Repository;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class MessageRepositoryImpl implements MessageRepository {
 
     private final UserRepository userRepository;

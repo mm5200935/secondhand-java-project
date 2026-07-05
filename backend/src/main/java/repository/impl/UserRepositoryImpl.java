@@ -1,15 +1,15 @@
-package repository.impl;
-
-import database.DatabaseManager;
-import enums.UserRole;
-import enums.UserStatus;
-import model.User;
-import repository.interfaces.UserRepository;
-
+package app.repository.impl;
+import app.database.DatabaseManager;
+import app.enums.UserRole;
+import app.enums.UserStatus;
+import app.model.User;
+import app.repository.interfaces.UserRepository;
+import org.springframework.stereotype.Repository;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class UserRepositoryImpl implements UserRepository {
 
     @Override

@@ -1,6 +1,6 @@
-package repository.interfaces;
+package app.repository.interfaces;
 
-import model.Message;
+import app.model.Message;
 
 import java.util.List;
 

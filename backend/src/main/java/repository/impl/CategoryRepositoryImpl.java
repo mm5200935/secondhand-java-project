@@ -1,11 +1,13 @@
-package repository.impl;
-import database.DatabaseManager;
-import model.Category;
-import repository.interfaces.CategoryRepository;
+package app.repository.impl;
+import app.database.DatabaseManager;
+import app.model.Category;
+import app.repository.interfaces.CategoryRepository;
+import org.springframework.stereotype.Repository;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class CategoryRepositoryImpl implements CategoryRepository {
 
     @Override

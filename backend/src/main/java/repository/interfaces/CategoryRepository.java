@@ -1,6 +1,6 @@
-package repository.interfaces;
+package app.repository.interfaces;
 
-import model.Category;
+import app.model.Category;
 
 import java.util.List;
 

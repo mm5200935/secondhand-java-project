@@ -1,6 +1,6 @@
-package repository.interfaces;
+package app.repository.interfaces;
 
-import model.Favorite;
+import app.model.Favorite;
 
 import java.util.List;
 
