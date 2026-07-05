@@ -1,5 +1,5 @@
-package model;
-import enums.AdvertisementStatus;
+package app.model;
+import app.enums.AdvertisementStatus;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -25,6 +25,9 @@ public class Advertisement {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
         status = AdvertisementStatus.PENDING;
+
+        category = new Category();
+        city = new City();
     }
 
     public Advertisement(int id,
@@ -136,6 +139,22 @@ public class Advertisement {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public int getCategoryId() {
+        return category.getId();
+    }
+
+    public void setCategoryId(int categoryId) {
+        this.category.setId(categoryId);
+    }
+
+    public void setCityId(int id) {
+        this.city.setId(id);
+    }
+
+    public int getCityId() {
+        return this.city.getId();
     }
 
 

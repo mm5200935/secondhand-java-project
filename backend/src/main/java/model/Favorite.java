@@ -1,4 +1,4 @@
-package model;
+package app.model;
 import java.time.LocalDateTime;
 
 public class Favorite {
@@ -39,6 +39,10 @@ public class Favorite {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getId() {
+        return id;
     }
 
 }

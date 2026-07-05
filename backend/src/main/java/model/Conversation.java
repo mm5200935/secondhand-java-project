@@ -1,4 +1,4 @@
-package model;
+package app.model;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,5 +81,8 @@ public class Conversation {
         this.advertisement = advertisement;
     }
 
+    public java.time.LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
 }
