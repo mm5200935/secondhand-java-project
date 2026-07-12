@@ -7,7 +7,7 @@ import java.sql.SQLException;
 public class DatabaseManager {
 
     private static final String URL =
-            "jdbc:sqlite:backend/database/secondhand.db";
+        "jdbc:sqlite:database/secondhand.db";
 
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL);
