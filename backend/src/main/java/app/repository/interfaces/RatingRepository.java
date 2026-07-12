@@ -22,6 +22,6 @@ public interface RatingRepository {
 
     List<Rating> findByAdvertisementId(int advertisementId);
 
-    boolean existsByBuyerIdAndAdvertisementId(int buyerId, int advertisementId);
+    boolean existsByBuyerIdAndSellerId(int buyerId, int sellerId);
 
 }
