@@ -1,15 +1,16 @@
 package app.service.interfaces;
-import app.model.Advertisement;
+
 import app.model.Rating;
 import app.model.User;
+
 import java.util.List;
 
 public interface RatingService {
 
-    Rating addRating(User buyer,
-                     Advertisement advertisement,
-                     int score,
-                     String comment);
+    Rating submitRating(User buyer,
+                        User seller,
+                        int score,
+                        String comment);
 
     void updateRating(int ratingId,
                       User buyer,
