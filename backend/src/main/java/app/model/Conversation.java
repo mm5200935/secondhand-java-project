@@ -85,4 +85,11 @@ public class Conversation {
         return createdAt;
     }
 
+    public java.time.LocalDateTime getLastMessageAt() {
+        return lastMessageAt;
+    }
+    public void setLastMessageAt(java.time.LocalDateTime t) {
+        this.lastMessageAt = t;
+    }
+
 }

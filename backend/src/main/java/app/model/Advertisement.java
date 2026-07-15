@@ -157,5 +157,13 @@ public class Advertisement {
         return this.city.getId();
     }
 
+    public List<AdvertisementImage> getImages() { return images; }
+    public void setImages(List<AdvertisementImage> images) { this.images = images; }
+
+    private String rejectionReason;
+
+    public String getRejectionReason() { return rejectionReason; }
+    public void setRejectionReason(String rejectionReason) { this.rejectionReason = rejectionReason; }
+
 
 }

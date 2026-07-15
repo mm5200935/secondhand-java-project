@@ -24,4 +24,12 @@ public class AdvertisementImage {
         this.fileType = fileType;
     }
 
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    public String getFileName() { return fileName; }
+    public String getFilePath() { return filePath; }
+    public long getFileSize() { return fileSize; }
+    public String getFileType() { return fileType; }
+
 }
