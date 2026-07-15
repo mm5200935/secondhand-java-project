@@ -1,70 +1,83 @@
 package app.security;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
+import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
-import javax.crypto.SecretKey;
-
+/**
+ * Utility class responsible for generating and validating JWT access tokens.
+ * <p>
+ * The token carries the user's id (as subject), username and role as claims,
+ * so the rest of the backend can identify the currently authenticated user
+ * without hitting the database on every request.
+ */
 @Component
 public class JwtUtil {
 
-    // این کلید فقط برای محیط آموزشی است، در سیستم‌های واقعی باید در فایل تنظیمات مخفی شود
-    private final String SECRET_KEY = "SecondHandProjectSecretKeyForAmirkabirUniversitySpringbootApp";
-    private final SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
-    private final long EXPIRATION_TIME = 1000 * 60 * 60 * 10; // 10 Hours
+    // NOTE: in a real production system this secret should come from an
+    // environment variable / config file instead of being hard-coded.
+    private static final String SECRET =
+            "secondhand-marketplace-super-secret-key-change-me-1234567890";
 
-    public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
-    }
+    private static final long EXPIRATION_MS = 24 * 60 * 60 * 1000L; // 24 hours
 
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
-    }
+    private final SecretKey key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
-    }
+    public String generateToken(int userId, String username, String role) {
 
-    private Claims extractAllClaims(String token) {
-    return Jwts.parser()
-            .verifyWith(key)
-            .build()
-            .parseSignedClaims(token)
-            .getPayload();
-    }
-
-    private Boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
-    }
-
-    public String generateToken(String username, String role) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("username", username);
         claims.put("role", role);
-        return createToken(claims, username);
-    }
 
-    private String createToken(Map<String, Object> claims, String subject) {
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + EXPIRATION_MS);
+
         return Jwts.builder()
                 .claims(claims)
-                .subject(subject)
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .subject(String.valueOf(userId))
+                .issuedAt(now)
+                .expiration(expiry)
                 .signWith(key)
                 .compact();
     }
 
-    public Boolean validateToken(String token, String username) {
-        final String extractedUsername = extractUsername(token);
-        return (extractedUsername.equals(username) && !isTokenExpired(token));
+    /**
+     * Parses and validates the token, returning its claims.
+     * Throws JwtException (or a subclass) if the token is invalid or expired.
+     */
+    public Claims extractAllClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
+    public int extractUserId(String token) {
+        return Integer.parseInt(extractAllClaims(token).getSubject());
+    }
+
+    public String extractUsername(String token) {
+        return extractAllClaims(token).get("username", String.class);
+    }
+
+    public String extractRole(String token) {
+        return extractAllClaims(token).get("role", String.class);
+    }
+
+    public boolean isTokenValid(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+            return claims.getExpiration().after(new Date());
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
     }
 }
