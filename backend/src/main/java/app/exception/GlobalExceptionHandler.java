@@ -2,40 +2,49 @@ package app.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<String> handleResponseStatus(ResponseStatusException ex) {
+
+        return ResponseEntity
+                .status(ex.getStatusCode())
+                .body(ex.getReason());
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> handleRuntime(RuntimeException e) {
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(e.getMessage());
+    }
+
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleException(Exception e) {
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Internal Server Error");
+    }
+
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFoundException ex) {
-        return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    public ResponseEntity<String> handleNotFound(ResourceNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ex.getMessage());
     }
 
     @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<Object> handleUnauthorizedException(UnauthorizedException ex) {
-        return buildErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<String> handleUnauthorized(UnauthorizedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ex.getMessage());
     }
 
-    // گرفتن تمام خطاهای پیش‌بینی نشده دیگر
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Object> handleGlobalException(Exception ex) {
-        return buildErrorResponse("خطای داخلی سرور: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    // متد کمکی برای ساختاربندی یکسان پاسخ‌های خطا
-    private ResponseEntity<Object> buildErrorResponse(String message, HttpStatus status) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", status.value());
-        body.put("error", status.getReasonPhrase());
-        body.put("message", message);
-
-        return new ResponseEntity<>(body, status);
-    }
 }
