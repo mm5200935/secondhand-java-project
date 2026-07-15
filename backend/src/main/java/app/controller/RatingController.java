@@ -1,71 +1,86 @@
 package app.controller;
 
-import app.dto.RatingRequest;
+import app.dto.response.RatingResponse;
+import app.model.Advertisement;
+import app.model.Rating;
 import app.model.User;
+import app.repository.interfaces.RatingRepository;
+import app.security.AuthenticatedUser;
+import app.service.interfaces.AdvertisementService;
 import app.service.interfaces.RatingService;
 import app.service.interfaces.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/ratings")
 public class RatingController {
 
     private final RatingService ratingService;
+    private final RatingRepository ratingRepository;
+    private final AdvertisementService advertisementService;
     private final UserService userService;
 
-    @Autowired
     public RatingController(RatingService ratingService,
+                            RatingRepository ratingRepository,
+                            AdvertisementService advertisementService,
                             UserService userService) {
         this.ratingService = ratingService;
+        this.ratingRepository = ratingRepository;
+        this.advertisementService = advertisementService;
         this.userService = userService;
     }
 
+    // POST /api/ratings -> ثبت امتیاز برای فروشنده‌ی یک آگهی (نیاز به توکن)
+    // بدنه: { "adId": 1, "score": 5, "comment": "..." }
     @PostMapping
-    public ResponseEntity<?> submitRating(@RequestBody RatingRequest request,
-                                          Principal principal) {
+    public RatingResponse rate(@RequestBody Map<String, Object> body,
+                               @AuthenticationPrincipal AuthenticatedUser principal) {
 
-        try {
+        int adId = ((Number) body.get("adId")).intValue();
+        int score = ((Number) body.get("score")).intValue();
+        String comment = body.get("comment") != null ? body.get("comment").toString() : null;
 
-            if (principal == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("User is not authenticated.");
-            }
+        User buyer = userService.findById(principal.id());
+        Advertisement ad = advertisementService.getById(adId);
 
-            if (request.getScore() < 1 || request.getScore() > 5) {
-                return ResponseEntity.badRequest()
-                        .body("Score must be between 1 and 5.");
-            }
+        Rating rating = ratingService.addRating(buyer, ad, score, comment);
+        return new RatingResponse(rating);
+    }
 
-            User buyer = userService.findByUsername(principal.getName());
+    // GET /api/ratings/seller/{sellerId} -> همه‌ی امتیازهای یک فروشنده (عمومی)
+    @GetMapping("/seller/{sellerId}")
+    public List<RatingResponse> getSellerRatings(@PathVariable int sellerId) {
+        User seller = userService.findById(sellerId);
+        return ratingService.getSellerRatings(seller).stream()
+                .map(RatingResponse::new)
+                .collect(Collectors.toList());
+    }
 
-            if (buyer == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Buyer not found.");
-            }
+    // GET /api/ratings/seller/{sellerId}/average -> میانگین امتیاز یک فروشنده (عمومی)
+    @GetMapping("/seller/{sellerId}/average")
+    public double getSellerAverage(@PathVariable int sellerId) {
+        User seller = userService.findById(sellerId);
+        return ratingService.getAverageRating(seller);
+    }
 
-            User seller = userService.findById(request.getSellerId());
+    // GET /api/ratings/has-rated/{adId} -> آیا کاربر فعلی قبلاً به این آگهی امتیاز داده؟
+    @GetMapping("/has-rated/{adId}")
+    public boolean hasRated(@PathVariable int adId,
+                            @AuthenticationPrincipal AuthenticatedUser principal) {
+        return ratingRepository.existsByBuyerIdAndAdvertisementId(principal.id(), adId);
+    }
 
-            if (seller == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Seller not found.");
-            }
-
-            ratingService.submitRating(
-                    buyer,
-                    seller,
-                    request.getScore(),
-                    request.getComment()
-            );
-
-            return ResponseEntity.ok("Rating submitted successfully.");
-
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    // GET /api/ratings/ad/{adId} -> همه‌ی نظرات ثبت‌شده روی یک آگهی خاص (عمومی)
+    @GetMapping("/ad/{adId}")
+    public List<RatingResponse> getAdRatings(@PathVariable int adId) {
+        Advertisement ad = advertisementService.getById(adId);
+        return ratingService.getAdRatings(ad).stream()
+                .map(RatingResponse::new)
+                .collect(Collectors.toList());
     }
 }

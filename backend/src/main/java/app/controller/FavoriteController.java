@@ -1,141 +1,64 @@
 package app.controller;
 
+import app.dto.response.AdvertisementResponse;
 import app.model.Advertisement;
-import app.model.Favorite;
 import app.model.User;
+import app.security.AuthenticatedUser;
 import app.service.interfaces.AdvertisementService;
 import app.service.interfaces.FavoriteService;
 import app.service.interfaces.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/favorites")
 public class FavoriteController {
 
     private final FavoriteService favoriteService;
-    private final UserService userService;
     private final AdvertisementService advertisementService;
+    private final UserService userService;
 
-    @Autowired
-    public FavoriteController(
-            FavoriteService favoriteService,
-            UserService userService,
-            AdvertisementService advertisementService
-    ) {
+    public FavoriteController(FavoriteService favoriteService,
+                              AdvertisementService advertisementService,
+                              UserService userService) {
         this.favoriteService = favoriteService;
-        this.userService = userService;
         this.advertisementService = advertisementService;
-    }
-
-    @GetMapping
-    public ResponseEntity<?> getUserFavorites(Principal principal) {
-        try {
-            User currentUser = userService.findByUsername(principal.getName());
-
-            List<Favorite> favorites =
-                    favoriteService.getUserFavorites(currentUser.getId());
-
-            return ResponseEntity.ok(favorites);
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(e.getMessage());
-        }
+        this.userService = userService;
     }
 
     @PostMapping("/{adId}")
-    public ResponseEntity<?> addFavorite(
-            @PathVariable int adId,
-            Principal principal
-    ) {
-        try {
-            User currentUser = userService.findByUsername(principal.getName());
-
-            Advertisement advertisement = advertisementService.getById(adId);
-
-            if (advertisement == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Advertisement not found.");
-            }
-
-            favoriteService.addFavorite(currentUser, advertisement);
-
-            return ResponseEntity.ok("آگهی با موفقیت به لیست علاقه‌مندی‌ها اضافه شد.");
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(e.getMessage());
-        }
+    public boolean addFavorite(@PathVariable int adId,
+                               @AuthenticationPrincipal AuthenticatedUser principal) {
+        User user = userService.findById(principal.id());
+        Advertisement ad = advertisementService.getById(adId);
+        favoriteService.addFavorite(user, ad);
+        return true;
     }
 
     @DeleteMapping("/{adId}")
-    public ResponseEntity<?> removeFavorite(
-            @PathVariable int adId,
-            Principal principal
-    ) {
-        try {
-            User currentUser = userService.findByUsername(principal.getName());
-
-            Advertisement advertisement = advertisementService.getById(adId);
-
-            if (advertisement == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Advertisement not found.");
-            }
-
-            favoriteService.removeFavorite(currentUser, advertisement);
-
-            return ResponseEntity.ok("آگهی از لیست علاقه‌مندی‌ها حذف شد.");
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(e.getMessage());
-        }
-    }
-
-    @GetMapping("/count")
-    public ResponseEntity<?> countFavorites(Principal principal) {
-        try {
-            User currentUser = userService.findByUsername(principal.getName());
-
-            int count = favoriteService.countUserFavorites(currentUser.getId());
-
-            return ResponseEntity.ok(count);
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(e.getMessage());
-        }
+    public boolean removeFavorite(@PathVariable int adId,
+                                  @AuthenticationPrincipal AuthenticatedUser principal) {
+        User user = userService.findById(principal.id());
+        Advertisement ad = advertisementService.getById(adId);
+        favoriteService.removeFavorite(user, ad);
+        return true;
     }
 
     @GetMapping("/check/{adId}")
-    public ResponseEntity<?> isFavorite(
-            @PathVariable int adId,
-            Principal principal
-    ) {
-        try {
-            User currentUser = userService.findByUsername(principal.getName());
+    public boolean isFavorite(@PathVariable int adId,
+                              @AuthenticationPrincipal AuthenticatedUser principal) {
+        User user = userService.findById(principal.id());
+        Advertisement ad = advertisementService.getById(adId);
+        return favoriteService.isFavorite(user, ad);
+    }
 
-            Advertisement advertisement = advertisementService.getById(adId);
-
-            if (advertisement == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Advertisement not found.");
-            }
-
-            boolean favorite = favoriteService.isFavorite(currentUser, advertisement);
-
-            return ResponseEntity.ok(favorite);
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(e.getMessage());
-        }
+    @GetMapping("/user/{userId}")
+    public List<AdvertisementResponse> getUserFavorites(@PathVariable int userId) {
+        return favoriteService.getUserFavorites(userId).stream()
+                .map(fav -> new AdvertisementResponse(fav.getAdvertisement()))
+                .collect(Collectors.toList());
     }
 }
