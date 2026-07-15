@@ -10,7 +10,6 @@ import app.service.interfaces.AdminService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
 @Service
 public class AdminServiceImpl implements AdminService {
 
@@ -23,8 +22,11 @@ public class AdminServiceImpl implements AdminService {
         this.advertisementRepository = advertisementRepository;
     }
 
+
+
     @Override
     public void blockUser(User user) {
+
         if (user == null) {
             throw new RuntimeException("User not found.");
         }
@@ -35,6 +37,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public void unblockUser(User user) {
+
         if (user == null) {
             throw new RuntimeException("User not found.");
         }
@@ -48,49 +51,48 @@ public class AdminServiceImpl implements AdminService {
         return userRepository.findAll();
     }
 
+
+
     @Override
     public List<Advertisement> getPendingAdvertisements() {
         return advertisementRepository.findByStatus(AdvertisementStatus.PENDING);
     }
 
     @Override
-    public void approveAdvertisement(int id) {
-        Advertisement advertisement = advertisementRepository.findById(id);
+    public void approveAdvertisement(Advertisement advertisement) {
 
         if (advertisement == null) {
             throw new RuntimeException("Advertisement not found.");
         }
 
         advertisementRepository.updateStatus(
-                id,
+                advertisement.getId(),
                 AdvertisementStatus.ACTIVE
         );
     }
 
     @Override
-    public void rejectAdvertisement(int id) {
-        Advertisement advertisement = advertisementRepository.findById(id);
+    public void rejectAdvertisement(Advertisement advertisement) {
 
         if (advertisement == null) {
             throw new RuntimeException("Advertisement not found.");
         }
 
         advertisementRepository.updateStatus(
-                id,
+                advertisement.getId(),
                 AdvertisementStatus.REJECTED
         );
     }
 
     @Override
-    public void deleteAdvertisement(int id) {
-        Advertisement advertisement = advertisementRepository.findById(id);
+    public void deleteAdvertisement(Advertisement advertisement) {
 
         if (advertisement == null) {
             throw new RuntimeException("Advertisement not found.");
         }
 
         advertisementRepository.updateStatus(
-                id,
+                advertisement.getId(),
                 AdvertisementStatus.DELETED
         );
     }

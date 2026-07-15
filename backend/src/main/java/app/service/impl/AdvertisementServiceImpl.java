@@ -11,6 +11,8 @@ import app.repository.interfaces.CategoryRepository;
 import app.repository.interfaces.CityRepository;
 import app.service.interfaces.AdvertisementService;
 import org.springframework.stereotype.Service;
+import app.repository.interfaces.AdvertisementImageRepository;
+
 
 import java.util.Comparator;
 import java.util.List;
@@ -22,19 +24,22 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     private final AdvertisementRepository advertisementRepository;
     private final CategoryRepository categoryRepository;
     private final CityRepository cityRepository;
+    private final AdvertisementImageRepository advertisementImageRepository;
 
     public AdvertisementServiceImpl(AdvertisementRepository advertisementRepository,
                                     CategoryRepository categoryRepository,
-                                    CityRepository cityRepository) {
+                                    CityRepository cityRepository,
+                                    AdvertisementImageRepository advertisementImageRepository) {
         this.advertisementRepository = advertisementRepository;
         this.categoryRepository = categoryRepository;
         this.cityRepository = cityRepository;
+        this.advertisementImageRepository = advertisementImageRepository;
     }
 
 
 
     @Override
-    public Advertisement create(Advertisement ad, User owner) {
+    public Advertisement create(Advertisement ad, User owner, List<String> imagePaths) {
 
         if (owner == null) {
             throw new ResourceNotFoundException("User not found.");
@@ -51,13 +56,22 @@ public class AdvertisementServiceImpl implements AdvertisementService {
         ad.setOwner(owner);
         ad.setStatus(AdvertisementStatus.PENDING);
 
-        return advertisementRepository.save(ad);
+        Advertisement saved = advertisementRepository.save(ad);
+
+        if (imagePaths != null) {
+            for (String path : imagePaths) {
+                advertisementImageRepository.save(saved.getId(), path);
+            }
+        }
+
+        saved.setImages(advertisementImageRepository.findByAdvertisementId(saved.getId()));
+        return saved;
     }
 
 
 
     @Override
-    public Advertisement update(Advertisement ad, User owner) {
+    public Advertisement update(Advertisement ad, User owner, List<String> imagePaths) {
 
         if (owner == null) {
             throw new ResourceNotFoundException("User not found.");
@@ -97,7 +111,17 @@ public class AdvertisementServiceImpl implements AdvertisementService {
         existing.setCategory(ad.getCategory());
         existing.setCity(ad.getCity());
 
-        return advertisementRepository.update(existing);
+        Advertisement updated = advertisementRepository.update(existing);
+
+        if (imagePaths != null) {
+            advertisementImageRepository.deleteByAdvertisementId(updated.getId());
+            for (String path : imagePaths) {
+                advertisementImageRepository.save(updated.getId(), path);
+            }
+        }
+
+        updated.setImages(advertisementImageRepository.findByAdvertisementId(updated.getId()));
+        return updated;
     }
 
 
@@ -147,10 +171,9 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
     @Override
     public List<Advertisement> getAll() {
-
         return advertisementRepository.findAll()
                 .stream()
-                .filter(ad -> ad.getStatus() != AdvertisementStatus.DELETED)
+                .filter(ad -> ad.getStatus() == AdvertisementStatus.ACTIVE)
                 .collect(Collectors.toList());
     }
 
@@ -174,7 +197,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
 
     @Override
-    public void reject(int adId) {
+    public void reject(int adId, String reason) {
 
         Advertisement ad = advertisementRepository.findById(adId);
 
@@ -182,10 +205,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
             throw new ResourceNotFoundException("Advertisement not found.");
         }
 
-        advertisementRepository.updateStatus(
-                ad.getId(),
-                AdvertisementStatus.REJECTED
-        );
+        advertisementRepository.rejectAdvertisement(ad.getId(), reason);
     }
 
 
@@ -225,7 +245,8 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
 
     @Override
-    public List<Advertisement> search(String keyword) {
+    public List<Advertisement> search(String keyword, Integer categoryId, Integer cityId,
+                                      Double minPrice, Double maxPrice) {
 
         String search = keyword == null ? "" : keyword.toLowerCase();
 
@@ -235,6 +256,28 @@ public class AdvertisementServiceImpl implements AdvertisementService {
                 .filter(ad ->
                         ad.getTitle().toLowerCase().contains(search) ||
                                 ad.getDescription().toLowerCase().contains(search))
+                .filter(ad -> categoryId == null || ad.getCategoryId() == categoryId)
+                .filter(ad -> cityId == null || ad.getCityId() == cityId)
+                .filter(ad -> minPrice == null || ad.getPrice() >= minPrice)
+                .filter(ad -> maxPrice == null || ad.getPrice() <= maxPrice)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Advertisement> searchForAdmin(String keyword, Integer categoryId, Integer cityId,
+                                              Double minPrice, Double maxPrice) {
+
+        String search = keyword == null ? "" : keyword.toLowerCase();
+
+        return advertisementRepository.findAll()
+                .stream()
+                .filter(ad ->
+                        ad.getTitle().toLowerCase().contains(search) ||
+                                ad.getDescription().toLowerCase().contains(search))
+                .filter(ad -> categoryId == null || ad.getCategoryId() == categoryId)
+                .filter(ad -> cityId == null || ad.getCityId() == cityId)
+                .filter(ad -> minPrice == null || ad.getPrice() >= minPrice)
+                .filter(ad -> maxPrice == null || ad.getPrice() <= maxPrice)
                 .collect(Collectors.toList());
     }
 
@@ -300,5 +343,19 @@ public class AdvertisementServiceImpl implements AdvertisementService {
             default:
                 return ads;
         }
+    }
+
+    @Override
+    public List<Advertisement> getAllForAdmin() {
+        return advertisementRepository.findAll();
+    }
+
+    @Override
+    public void adminDelete(int adId) {
+        Advertisement ad = advertisementRepository.findById(adId);
+        if (ad == null) {
+            throw new ResourceNotFoundException("Advertisement not found.");
+        }
+        advertisementRepository.updateStatus(ad.getId(), AdvertisementStatus.DELETED);
     }
 }

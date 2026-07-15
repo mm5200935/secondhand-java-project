@@ -1,11 +1,10 @@
 package app.service.interfaces;
-
 import app.model.Advertisement;
 import app.model.User;
-
 import java.util.List;
 
 public interface AdminService {
+
 
     void blockUser(User user);
 
@@ -15,13 +14,14 @@ public interface AdminService {
 
     List<Advertisement> getPendingAdvertisements();
 
-    void approveAdvertisement(int id);
+    void approveAdvertisement(Advertisement advertisement);
 
-    void rejectAdvertisement(int id);
+    void rejectAdvertisement(Advertisement advertisement);
 
-    void deleteAdvertisement(int id);
+    void deleteAdvertisement(Advertisement advertisement);
 
     int getTotalUsers();
 
     int getTotalAdvertisements();
+
 }

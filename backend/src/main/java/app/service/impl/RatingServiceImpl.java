@@ -1,5 +1,5 @@
 package app.service.impl;
-
+import app.model.Advertisement;
 import app.model.Rating;
 import app.model.User;
 import app.repository.interfaces.RatingRepository;
@@ -18,30 +18,26 @@ public class RatingServiceImpl implements RatingService {
     }
 
     @Override
-    public Rating submitRating(User buyer,
-                               User seller,
-                               int score,
-                               String comment) {
-
-        if (buyer == null) {
-            throw new RuntimeException("Buyer not found.");
-        }
-
-        if (seller == null) {
-            throw new RuntimeException("Seller not found.");
-        }
-
-        if (buyer.getId() == seller.getId()) {
-            throw new RuntimeException("You cannot rate yourself.");
-        }
+    public Rating addRating(User buyer,
+                            Advertisement advertisement,
+                            int score,
+                            String comment) {
 
         if (score < 1 || score > 5) {
             throw new RuntimeException("Score must be between 1 and 5.");
         }
 
+        if (ratingRepository.existsByBuyerIdAndAdvertisementId(
+                buyer.getId(),
+                advertisement.getId())) {
+
+            throw new RuntimeException("You have already rated this advertisement.");
+        }
+
         Rating rating = new Rating();
         rating.setBuyer(buyer);
-        rating.setSeller(seller);
+        rating.setSeller(advertisement.getOwner());
+        rating.setAdvertisement(advertisement);
         rating.setScore(score);
         rating.setComment(comment);
 
@@ -75,8 +71,7 @@ public class RatingServiceImpl implements RatingService {
     }
 
     @Override
-    public void deleteRating(int ratingId,
-                             User buyer) {
+    public void deleteRating(int ratingId, User buyer) {
 
         Rating rating = ratingRepository.findById(ratingId);
 
@@ -104,9 +99,10 @@ public class RatingServiceImpl implements RatingService {
     @Override
     public double getAverageRating(User seller) {
 
-        List<Rating> ratings = ratingRepository.findBySellerId(seller.getId());
+        List<Rating> ratings =
+                ratingRepository.findBySellerId(seller.getId());
 
-        if (ratings == null || ratings.isEmpty()) {
+        if (ratings.isEmpty()) {
             return 0;
         }
 
@@ -117,5 +113,10 @@ public class RatingServiceImpl implements RatingService {
         }
 
         return sum / ratings.size();
+    }
+
+    @Override
+    public List<Rating> getAdRatings(Advertisement advertisement) {
+        return ratingRepository.findByAdvertisementId(advertisement.getId());
     }
 }

@@ -1,12 +1,10 @@
 package app.service.impl;
-
 import app.model.Advertisement;
 import app.model.Conversation;
 import app.model.Message;
 import app.model.User;
 import app.repository.interfaces.ConversationRepository;
 import app.repository.interfaces.MessageRepository;
-import app.repository.interfaces.AdvertisementRepository;
 import app.service.interfaces.ConversationService;
 import org.springframework.stereotype.Service;
 
@@ -18,16 +16,11 @@ public class ConversationServiceImpl implements ConversationService {
 
     private final ConversationRepository conversationRepository;
     private final MessageRepository messageRepository;
-    private final AdvertisementRepository advertisementRepository;
 
-    public ConversationServiceImpl(
-            ConversationRepository conversationRepository,
-            MessageRepository messageRepository,
-            AdvertisementRepository advertisementRepository) {
-
+    public ConversationServiceImpl(ConversationRepository conversationRepository,
+                                   MessageRepository messageRepository) {
         this.conversationRepository = conversationRepository;
         this.messageRepository = messageRepository;
-        this.advertisementRepository = advertisementRepository;
     }
 
     @Override
@@ -64,13 +57,8 @@ public class ConversationServiceImpl implements ConversationService {
     }
 
     @Override
-    public List<Conversation> getUserConversations(User user) {
-
-        if (user == null) {
-            throw new RuntimeException("User not found.");
-        }
-
-        return conversationRepository.findByUserId(user.getId());
+    public List<Conversation> getUserConversations(int userId) {
+        return conversationRepository.findByUserId(userId);
     }
 
     @Override
@@ -93,49 +81,34 @@ public class ConversationServiceImpl implements ConversationService {
     }
 
     @Override
-    public Message sendMessage(
-            User sender,
-            User receiver,
-            int advertisementId,
-            String content) {
-
-        if (sender == null || receiver == null) {
-            throw new RuntimeException("Invalid users.");
-        }
-
-        Advertisement advertisement =
-                advertisementRepository.findById(advertisementId);
-
-        if (advertisement == null) {
-            throw new RuntimeException("Advertisement not found.");
-        }
+    public Message sendMessage(int conversationId,
+                               User sender,
+                               String content) {
 
         Conversation conversation =
-                conversationRepository.findByUsersAndAdvertisement(
-                        sender.getId(),
-                        receiver.getId(),
-                        advertisementId);
+                conversationRepository.findById(conversationId);
 
         if (conversation == null) {
-
-            conversation = new Conversation();
-            conversation.setBuyer(sender);
-            conversation.setSeller(receiver);
-            conversation.setAdvertisement(advertisement);
-            conversation.setClosed(false);
-
-            conversation = conversationRepository.save(conversation);
+            throw new RuntimeException("Conversation not found.");
         }
 
         if (conversation.isClosed()) {
             throw new RuntimeException("Conversation is closed.");
         }
 
+        if (sender.getId() != conversation.getBuyer().getId()
+                && sender.getId() != conversation.getSeller().getId()) {
+            throw new RuntimeException("You are not a participant of this conversation.");
+        }
+
         Message message = new Message();
-        message.setConversationId(conversation.getId());
+        message.setConversationId(conversationId);
         message.setSender(sender);
         message.setContent(content);
         message.setTime(LocalDateTime.now());
+
+        conversation.setLastMessageAt(message.getSentAt());
+        conversationRepository.update(conversation);
 
         return messageRepository.save(message);
     }

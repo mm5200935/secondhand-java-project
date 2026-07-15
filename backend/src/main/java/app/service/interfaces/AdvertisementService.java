@@ -9,9 +9,10 @@ import java.util.List;
 
 public interface AdvertisementService {
 
-    Advertisement create(Advertisement ad, User owner);
+    Advertisement create(Advertisement ad, User owner, List<String> imagePaths);
 
-    Advertisement update(Advertisement ad, User owner);
+
+    Advertisement update(Advertisement ad, User owner, List<String> imagePaths);
 
     void delete(int adId, User owner);
 
@@ -21,13 +22,15 @@ public interface AdvertisementService {
 
     void approve(int adId);
 
-    void reject(int adId);
+    void reject(int adId, String reason);
 
     void markAsSold(int adId);
 
     void deactivate(int adId);
 
-    List<Advertisement> search(String keyword);
+    List<Advertisement> search(String keyword, Integer categoryId, Integer cityId, Double minPrice, Double maxPrice);
+
+    List<Advertisement> searchForAdmin(String keyword, Integer categoryId, Integer cityId, Double minPrice, Double maxPrice);
 
     List<Advertisement> filterByCategory(int categoryId);
 
@@ -38,5 +41,8 @@ public interface AdvertisementService {
     List<Advertisement> sort(List<Advertisement> ads, SortType sortType);
 
     List<Advertisement> getByStatus(AdvertisementStatus status);
+
+    List<Advertisement> getAllForAdmin();
+    void adminDelete(int adId);
 
 }

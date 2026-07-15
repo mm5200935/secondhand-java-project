@@ -1,10 +1,12 @@
 package app.service.impl;
 
+import app.enums.UserRole;
 import app.model.User;
 import app.exception.ResourceNotFoundException;
 import app.repository.interfaces.UserRepository;
 import app.service.interfaces.UserService;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -14,9 +16,11 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -25,9 +29,24 @@ public class UserServiceImpl implements UserService {
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
-                    "Username already exists"
+                    "نام کاربری قبلاً وجود دارد"
             );
         }
+
+        if (userRepository.existsByPhone(user.getPhone())) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "این شماره تماس قبلاً در سیستم ثبت شده است"
+            );
+        }
+
+        // default role for every new sign-up is a regular user
+        if (user.getRole() == null) {
+            user.setRole(UserRole.USER);
+        }
+
+        // never store the raw password
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         return userRepository.save(user);
     }
@@ -40,21 +59,21 @@ public class UserServiceImpl implements UserService {
         if (user == null) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
-                    "User not found"
+                    "نام کاربری یافت نشد"
             );
         }
 
-        if (!user.getPassword().equals(password)) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Wrong password"
+                    "رمز عبور اشتباه است"
             );
         }
 
         if (user.isBlocked()) {
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN,
-                    "User is blocked"
+                    "حساب کاربری شما مسدود شده است"
             );
         }
 
@@ -95,19 +114,33 @@ public class UserServiceImpl implements UserService {
                                String oldPassword,
                                String newPassword) {
 
-        if (!user.getPassword().equals(oldPassword)) {
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "Old password is incorrect"
             );
         }
 
-        user.setPassword(newPassword);
+        user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.update(user);
     }
 
     @Override
     public void deleteAccount(User user) {
         userRepository.delete(user.getId());
+    }
+
+    @Override
+    public User blockUser(int userId) {
+        User user = findById(userId);
+        user.setStatus(app.enums.UserStatus.BLOCKED);
+        return userRepository.update(user);
+    }
+
+    @Override
+    public User unblockUser(int userId) {
+        User user = findById(userId);
+        user.setStatus(app.enums.UserStatus.ACTIVE);
+        return userRepository.update(user);
     }
 }

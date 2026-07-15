@@ -15,4 +15,6 @@ public interface UserService {
                         String oldPassword,
                         String newPassword);
     void deleteAccount(User user);
+    User blockUser(int userId);
+    User unblockUser(int userId);
 }
