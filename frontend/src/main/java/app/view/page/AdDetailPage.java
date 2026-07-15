@@ -1,15 +1,10 @@
 package app.view.page;
 
+import app.client.ApiClient;
 import app.dto.request.MessageRequest;
 import app.dto.request.RatingRequest;
 import app.dto.response.Response;
-import app.client.ApiClient;
-import app.model.Ad;
-import app.model.Category;
-import app.model.City;
-import app.model.Conversation;
-import app.model.Rating;
-import app.model.User;
+import app.model.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
