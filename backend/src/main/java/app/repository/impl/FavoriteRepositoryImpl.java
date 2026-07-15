@@ -31,8 +31,10 @@ public class FavoriteRepositoryImpl implements FavoriteRepository {
                 new AdvertisementRepositoryImpl(
                         userRepository,
                         categoryRepository,
-                        cityRepository
+                        cityRepository,
+                        new AdvertisementImageRepositoryImpl()
                 );
+
     }
 
     @Override

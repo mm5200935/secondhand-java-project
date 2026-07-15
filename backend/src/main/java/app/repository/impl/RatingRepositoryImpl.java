@@ -1,5 +1,4 @@
 package app.repository.impl;
-
 import app.database.DatabaseManager;
 import app.model.Advertisement;
 import app.model.Rating;
@@ -28,10 +27,13 @@ public class RatingRepositoryImpl implements RatingRepository {
         this.categoryRepository = new CategoryRepositoryImpl();
         this.cityRepository = new CityRepositoryImpl();
 
-        this.advertisementRepository = new AdvertisementRepositoryImpl(
-                userRepository,
-                categoryRepository,
-                cityRepository);
+        this.advertisementRepository =
+                new AdvertisementRepositoryImpl(
+                        userRepository,
+                        categoryRepository,
+                        cityRepository,
+                        new AdvertisementImageRepositoryImpl()
+                );
     }
 
     @Override
@@ -45,17 +47,13 @@ public class RatingRepositoryImpl implements RatingRepository {
 
         try (
                 Connection connection = DatabaseManager.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement statement =
+                        connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
+        ) {
 
             statement.setInt(1, rating.getBuyer().getId());
             statement.setInt(2, rating.getSeller().getId());
-
-            if (rating.getAdvertisement() != null) {
-                statement.setInt(3, rating.getAdvertisement().getId());
-            } else {
-                statement.setNull(3, Types.INTEGER);
-            }
-
+            statement.setInt(3, rating.getAdvertisement().getId());
             statement.setInt(4, rating.getScore());
             statement.setString(5, rating.getComment());
 
@@ -86,7 +84,9 @@ public class RatingRepositoryImpl implements RatingRepository {
 
         try (
                 Connection connection = DatabaseManager.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)) {
+                PreparedStatement statement =
+                        connection.prepareStatement(sql)
+        ) {
 
             statement.setInt(1, rating.getScore());
             statement.setString(2, rating.getComment());
@@ -108,7 +108,9 @@ public class RatingRepositoryImpl implements RatingRepository {
 
         try (
                 Connection connection = DatabaseManager.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)) {
+                PreparedStatement statement =
+                        connection.prepareStatement(sql)
+        ) {
 
             statement.setInt(1, ratingId);
             statement.executeUpdate();
@@ -125,7 +127,9 @@ public class RatingRepositoryImpl implements RatingRepository {
 
         try (
                 Connection connection = DatabaseManager.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)) {
+                PreparedStatement statement =
+                        connection.prepareStatement(sql)
+        ) {
 
             statement.setInt(1, ratingId);
 
@@ -151,8 +155,10 @@ public class RatingRepositoryImpl implements RatingRepository {
 
         try (
                 Connection connection = DatabaseManager.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql);
-                ResultSet rs = statement.executeQuery()) {
+                PreparedStatement statement =
+                        connection.prepareStatement(sql);
+                ResultSet rs = statement.executeQuery()
+        ) {
 
             while (rs.next()) {
                 list.add(mapRating(rs));
@@ -174,7 +180,9 @@ public class RatingRepositoryImpl implements RatingRepository {
 
         try (
                 Connection connection = DatabaseManager.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)) {
+                PreparedStatement statement =
+                        connection.prepareStatement(sql)
+        ) {
 
             statement.setInt(1, sellerId);
 
@@ -200,7 +208,9 @@ public class RatingRepositoryImpl implements RatingRepository {
 
         try (
                 Connection connection = DatabaseManager.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)) {
+                PreparedStatement statement =
+                        connection.prepareStatement(sql)
+        ) {
 
             statement.setInt(1, buyerId);
 
@@ -226,7 +236,9 @@ public class RatingRepositoryImpl implements RatingRepository {
 
         try (
                 Connection connection = DatabaseManager.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)) {
+                PreparedStatement statement =
+                        connection.prepareStatement(sql)
+        ) {
 
             statement.setInt(1, advertisementId);
 
@@ -244,21 +256,21 @@ public class RatingRepositoryImpl implements RatingRepository {
     }
 
     @Override
-    public boolean existsByBuyerIdAndSellerId(int buyerId, int sellerId) {
+    public boolean existsByBuyerIdAndAdvertisementId(int buyerId, int advertisementId) {
 
         String sql = """
-                SELECT 1
-                FROM ratings
-                WHERE buyer_id = ?
-                  AND seller_id = ?
+                SELECT 1 FROM ratings
+                WHERE buyer_id = ? AND advertisement_id = ?
                 """;
 
         try (
                 Connection connection = DatabaseManager.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)) {
+                PreparedStatement statement =
+                        connection.prepareStatement(sql)
+        ) {
 
             statement.setInt(1, buyerId);
-            statement.setInt(2, sellerId);
+            statement.setInt(2, advertisementId);
 
             ResultSet rs = statement.executeQuery();
 
@@ -275,12 +287,8 @@ public class RatingRepositoryImpl implements RatingRepository {
 
         User buyer = userRepository.findById(rs.getInt("buyer_id"));
         User seller = userRepository.findById(rs.getInt("seller_id"));
-        Advertisement advertisement = null;
-
-        int advertisementId = rs.getInt("advertisement_id");
-        if (!rs.wasNull()) {
-            advertisement = advertisementRepository.findById(advertisementId);
-        }
+        Advertisement advertisement =
+                advertisementRepository.findById(rs.getInt("advertisement_id"));
 
         rating.setId(rs.getInt("id"));
         rating.setBuyer(buyer);

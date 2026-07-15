@@ -5,10 +5,7 @@ import app.model.Advertisement;
 import app.model.Category;
 import app.model.City;
 import app.model.User;
-import app.repository.interfaces.AdvertisementRepository;
-import app.repository.interfaces.CategoryRepository;
-import app.repository.interfaces.CityRepository;
-import app.repository.interfaces.UserRepository;
+import app.repository.interfaces.*;
 import org.springframework.stereotype.Repository;
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -21,14 +18,17 @@ public class AdvertisementRepositoryImpl implements AdvertisementRepository {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final CityRepository cityRepository;
+    private final AdvertisementImageRepository advertisementImageRepository;   // <-- این خط جدید
 
     public AdvertisementRepositoryImpl(UserRepository userRepository,
                                        CategoryRepository categoryRepository,
-                                       CityRepository cityRepository) {
+                                       CityRepository cityRepository,
+                                       AdvertisementImageRepository advertisementImageRepository) {  // <-- پارامتر جدید
 
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
         this.cityRepository = cityRepository;
+        this.advertisementImageRepository = advertisementImageRepository;   // <-- این خط جدید
     }
 
     @Override
@@ -413,6 +413,8 @@ public class AdvertisementRepositoryImpl implements AdvertisementRepository {
         ad.setTitle(rs.getString("title"));
         ad.setDescription(rs.getString("description"));
         ad.setPrice(rs.getDouble("price"));
+        ad.setRejectionReason(rs.getString("rejection_reason"));
+
 
         ad.setNegotiable(rs.getInt("negotiable") == 1);
 
@@ -439,8 +441,41 @@ public class AdvertisementRepositoryImpl implements AdvertisementRepository {
         ad.setOwner(seller);
         ad.setCategory(category);
         ad.setCity(city);
+        ad.setImages(advertisementImageRepository.findByAdvertisementId(ad.getId()));
 
         return ad;
+    }
+
+    @Override
+    public void rejectAdvertisement(int advertisementId, String reason) {
+
+        String sql = """
+        UPDATE advertisements
+        SET status = ?,
+            rejection_reason = ?,
+            updated_at = ?
+        WHERE id = ?
+        """;
+
+        try (
+                Connection connection = DatabaseManager.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)
+        ) {
+
+            statement.setString(1, AdvertisementStatus.REJECTED.name());
+            statement.setString(2, reason);
+            statement.setString(3, LocalDateTime.now().toString());
+            statement.setInt(4, advertisementId);
+
+            int rows = statement.executeUpdate();
+
+            if (rows == 0) {
+                throw new RuntimeException("Advertisement not found.");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
 

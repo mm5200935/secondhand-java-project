@@ -11,6 +11,7 @@ public interface AdvertisementRepository {
 
     Advertisement update(Advertisement advertisement);
 
+
     void updateStatus(int advertisementId, AdvertisementStatus status);
 
     void delete(int advertisementId);
@@ -28,4 +29,7 @@ public interface AdvertisementRepository {
     List<Advertisement> findByStatus(AdvertisementStatus status);
 
     List<Advertisement> search(String keyword);
+
+    void rejectAdvertisement(int advertisementId, String reason);
+
 }
