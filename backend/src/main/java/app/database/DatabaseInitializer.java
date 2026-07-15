@@ -81,9 +81,9 @@ public class DatabaseInitializer {
                         seller_id INTEGER NOT NULL,
                         category_id INTEGER NOT NULL,
                         city_id INTEGER NOT NULL,
-                        
+
                         rejection_reason TEXT,
-                        
+
                         FOREIGN KEY (seller_id) REFERENCES users(id),
                         FOREIGN KEY (category_id) REFERENCES categories(id),
                         FOREIGN KEY (city_id) REFERENCES cities(id)
@@ -234,6 +234,11 @@ public class DatabaseInitializer {
                 + DEFAULT_ADMIN_USERNAME + "', password: '" + DEFAULT_ADMIN_PASSWORD + "'");
     }
 
+    /**
+     * Inserts the 31 Iranian provincial-capital cities into the cities
+     * table the first time the database is created. If cities already
+     * exist, nothing happens.
+     */
     private static void seedDefaultCities(Connection connection) throws Exception {
 
         String checkSql = "SELECT COUNT(*) FROM cities";
@@ -243,7 +248,7 @@ public class DatabaseInitializer {
             resultSet.next();
 
             if (resultSet.getInt(1) > 0) {
-                return;
+                return; // شهرها از قبل وجود دارند، کاری لازم نیست
             }
         }
 
@@ -295,7 +300,6 @@ public class DatabaseInitializer {
         System.out.println("31 provincial-capital cities seeded.");
     }
 
-
     private static void seedDefaultCategories(Connection connection) throws Exception {
 
         String checkSql = "SELECT COUNT(*) FROM categories";
@@ -343,5 +347,4 @@ public class DatabaseInitializer {
 
         System.out.println("18 categories seeded.");
     }
-
 }

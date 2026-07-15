@@ -2,7 +2,7 @@ package app.view.cell;
 import app.client.ApiClient;
 import app.model.Conversation;
 import app.model.User;
-import app.view.ChatPage;
+import app.view.page.ChatPage;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;

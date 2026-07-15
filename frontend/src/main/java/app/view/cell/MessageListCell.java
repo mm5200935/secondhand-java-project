@@ -1,10 +1,9 @@
 package app.view.cell;
-
-import app.client.ApiClient;
 import app.model.Conversation;
 import app.model.Message;
 import app.model.User;
-import app.view.ChatPage;
+import app.client.ApiClient;
+import app.view.page.ChatPage;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -13,6 +12,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+
 
 import java.text.SimpleDateFormat;
 

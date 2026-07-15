@@ -1,13 +1,14 @@
 package app.client;
 
+import app.dto.request.*;
+import app.dto.response.LoginResponse;
+import app.dto.response.Response;
+import app.model.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.hc.client5.http.classic.methods.HttpDelete;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.classic.methods.*;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -228,7 +229,7 @@ public class ApiClient {
     public Response<Ad> rejectAd(Long adId, String reason, Long adminId) {
         try {
             HttpPost post = new HttpPost(baseUrl() + "/api/ads/" + adId + "/reject");
-            Map<String, String> body = new HashMap<>();
+            java.util.Map<String, String> body = new java.util.HashMap<>();
             body.put("reason", reason);
             post.setEntity(new StringEntity(mapper.writeValueAsString(body), ContentType.APPLICATION_JSON));
 

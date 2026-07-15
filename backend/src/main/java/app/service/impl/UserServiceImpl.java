@@ -29,7 +29,7 @@ public class UserServiceImpl implements UserService {
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
-                    "نام کاربری قبلاً وجود دارد"
+                    "نام کاربری قبلا وجود دارد"
             );
         }
 
@@ -89,7 +89,7 @@ public class UserServiceImpl implements UserService {
     public User findById(int id) {
         User user = userRepository.findById(id);
         if (user == null) {
-            throw new ResourceNotFoundException("User not found.");
+            throw new ResourceNotFoundException("کاربر یافت نشد");
         }
         return user;
     }
@@ -117,7 +117,7 @@ public class UserServiceImpl implements UserService {
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Old password is incorrect"
+                    "رمز عبور قدیمی اشتباه است"
             );
         }
 

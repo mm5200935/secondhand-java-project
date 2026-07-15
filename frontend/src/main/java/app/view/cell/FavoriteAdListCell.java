@@ -1,10 +1,10 @@
 package app.view.cell;
 
-import app.client.ApiClient;
 import app.dto.response.Response;
+import app.client.ApiClient;
 import app.model.Ad;
-import app.view.AdDetailPage;
-import app.view.FavoritesPage;
+import app.view.page.AdDetailPage;
+import app.view.page.FavoritesPage;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
