@@ -40,37 +40,37 @@ public class RegisterPage {
         form.setStyle("-fx-background-color: white; -fx-padding: 30; -fx-border-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);");
 
         // Fields
-        Label fullNameLabel = new Label("نام کامل:");
+        Label fullNameLabel = new Label("نام کامل");
         fullNameLabel.setStyle("-fx-font-weight: bold;");
         TextField fullNameField = new TextField();
         fullNameField.setPrefWidth(250);
         fullNameField.setPromptText("نام و نام خانوادگی");
 
-        Label usernameLabel = new Label("نام کاربری:");
+        Label usernameLabel = new Label("نام کاربری");
         usernameLabel.setStyle("-fx-font-weight: bold;");
         TextField usernameField = new TextField();
         usernameField.setPrefWidth(250);
         usernameField.setPromptText("نام کاربری خود را انتخاب کنید");
 
-        Label passwordLabel = new Label("رمز عبور:");
+        Label passwordLabel = new Label("رمز عبور");
         passwordLabel.setStyle("-fx-font-weight: bold;");
         PasswordField passwordField = new PasswordField();
         passwordField.setPrefWidth(250);
         passwordField.setPromptText("رمز عبور خود را وارد کنید");
 
-        Label confirmLabel = new Label("تکرار رمز:");
+        Label confirmLabel = new Label("تکرار رمز");
         confirmLabel.setStyle("-fx-font-weight: bold;");
         PasswordField confirmField = new PasswordField();
         confirmField.setPrefWidth(250);
         confirmField.setPromptText("رمز عبور را تکرار کنید");
 
-        Label phoneLabel = new Label("شماره تماس:");
+        Label phoneLabel = new Label("شماره تماس");
         phoneLabel.setStyle("-fx-font-weight: bold;");
         TextField phoneField = new TextField();
         phoneField.setPrefWidth(250);
         phoneField.setPromptText("مثال: 09123456789");
 
-        Label emailLabel = new Label("ایمیل:");
+        Label emailLabel = new Label("ایمیل");
         emailLabel.setStyle("-fx-font-weight: bold;");
         TextField emailField = new TextField();
         emailField.setPrefWidth(250);
