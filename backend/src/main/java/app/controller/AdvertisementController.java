@@ -2,7 +2,6 @@ package app.controller;
 
 import app.dto.request.AdvertisementRequest;
 import app.dto.response.AdvertisementResponse;
-import app.exception.ResourceNotFoundException;
 import app.exception.UnauthorizedException;
 import app.model.Advertisement;
 import app.model.Category;
