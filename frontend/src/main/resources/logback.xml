@@ -1,0 +1,17 @@
+<configuration>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- لاگ‌های خیلی جزئی Apache HttpClient (هدرها، بدنه‌ی خام، connection pool) خاموش بشن -->
+    <logger name="org.apache.hc" level="WARN"/>
+
+    <!-- سطح لاگ کلی برنامه -->
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+</configuration>
