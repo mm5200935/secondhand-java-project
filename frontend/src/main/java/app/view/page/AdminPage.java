@@ -9,9 +9,11 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-
+import javafx.stage.Stage;
+import app.model.Category;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,11 +24,16 @@ public class AdminPage extends BorderPane {
     private final TableView<User> usersTable;
     private final TableView<Category> categoriesTable = new TableView<>();
     private final TableView<Ad> allAdsTable = new TableView<>();
+    private final Stage stage;
+    private final Scene scene;
 
-    public AdminPage(ApiClient apiClient) {
+    public AdminPage(Stage stage, ApiClient apiClient) {
+        this.stage = stage;
         this.apiClient = apiClient;
         this.adsTable = new TableView<>();
         this.usersTable = new TableView<>();
+
+        BorderPane root = new BorderPane();
 
         TabPane adminTabs = new TabPane();
         adminTabs.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
@@ -36,6 +43,12 @@ public class AdminPage extends BorderPane {
         Tab usersTab = new Tab("مدیریت کاربران", createUsersManagementPanel());
         Tab categoriesTab = new Tab("مدیریت دسته‌بندی‌ها", createCategoryManagementPanel());
         Tab dashboardTab = new Tab("داشبورد آماری", createDashboardPanel());
+
+        dashboardTab.setClosable(false);
+        categoriesTab.setClosable(false);
+        adsTab.setClosable(false);
+        allAdsTab.setClosable(false);
+        usersTab.setClosable(false);
 
         adminTabs.getTabs().addAll(
             dashboardTab,
@@ -54,9 +67,19 @@ public class AdminPage extends BorderPane {
         
         // بارگذاری اولیه همه آگهی‌ها (با یک جستجوی خالی)
         performSearch(new app.dto.request.SearchRequest());
+
+        // ساخت Scene با قرار دادن خودِ کلاس (this) به عنوان ریشه
+        this.scene = new Scene(this, 900, 600);
+    }
+
+    public void show() {
+        stage.setTitle("پنل مدیریت سامانه");
+        stage.setScene(scene); // ست کردن صحنه روی استیج هنگام نمایش
+        stage.show();
+        refreshCategories();
+        refreshAds();
     }
     
-
     // ==========================================
     // بخش مدیریت آگهی‌ها
     // ==========================================
@@ -552,5 +575,13 @@ public class AdminPage extends BorderPane {
                 }
             });
         }).start();
+    }
+
+    private void showAlert(Alert.AlertType alertType, String message) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle("پیام سیستم");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }
