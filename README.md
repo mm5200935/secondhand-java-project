@@ -33,6 +33,7 @@ Read more about **backend and its features** [here](#).
 ### 2. Run Frontend
 * Open a new terminal in the IDE.
 * Run `cd frontend`.
+* You can use admin panel with username `admin` and password `admin123`.
 * Run `mvn javafx:run`.
 
 Read more about **frontend and its features** [here](#).
