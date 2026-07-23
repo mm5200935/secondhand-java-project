@@ -28,15 +28,11 @@
 * Run `cd backend`.
 * Run `mvn spring-boot:run`.
 
-Read more about **backend and its features** [here](#).
-
 ### 2. Run Frontend
 * Open a new terminal in the IDE.
 * Run `cd frontend`.
 * Run `mvn javafx:run`.
 * You can use admin panel with username `admin` and password `admin123`.
-
-Read more about **frontend and its features** [here](#).
 
 ## Database
 In the project we used SQLite DB to save data.
