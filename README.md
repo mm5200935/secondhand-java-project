@@ -3,16 +3,16 @@
 ## Images of Project
 
 ### Login & SignUp
-(https://github.com/mm5200935/secondhand-java-project/tree/main/docs/screenshots/login%20page.JPG "Login Page")
+![Login Page](https://raw.githubusercontent.com/mm5200935/secondhand-java-project/refs/heads/main/docs/screenshots/login%20page.JPG "Login Page")
 
-(https://github.com/mm5200935/secondhand-java-project/tree/main/docs/screenshots/sign%20up%20page.JPG "SignUp Page")
+![SignUp Page](https://raw.githubusercontent.com/mm5200935/secondhand-java-project/refs/heads/main/docs/screenshots/signup%20page.JPG "SignUp Page")
 
 ### Admin Panel
-(https://github.com/mm5200935/secondhand-java-project/tree/main/docs/screenshots/admin%20panel/dashboard.JPG "Admin Dashboard")
+![Admin Dashboard](https://raw.githubusercontent.com/mm5200935/secondhand-java-project/refs/heads/main/docs/screenshots/admin%20panel/dashboard.JPG "Admin Dashboard")
 
-(https://github.com/mm5200935/secondhand-java-project/tree/main/docs/screenshots/admin%20panel/classification%20management.JPG "Admin Panel Features")
+![Admin Panel Features](https://raw.githubusercontent.com/mm5200935/secondhand-java-project/refs/heads/main/docs/screenshots/admin%20panel/classification%20management.JPG "Admin Panel Features")
 
-(https://github.com/mm5200935/secondhand-java-project/tree/main/docs/screenshots/admin%20panel/classification%20management%20_%20edit.JPG "Admin Panel Features")
+![Admin Panel Features](https://raw.githubusercontent.com/mm5200935/secondhand-java-project/refs/heads/main/docs/screenshots/admin%20panel/classification%20management%20_%20edit.JPG "Admin Panel Features")
 
 ## Team Members
 | # | Name | Tasks                                                                                                                             | Student Number | Email                                                       |
