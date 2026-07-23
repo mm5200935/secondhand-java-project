@@ -37,3 +37,12 @@ Read more about **backend and its features** [here](#).
 * You can use admin panel with username `admin` and password `admin123`.
 
 Read more about **frontend and its features** [here](#).
+
+## Database
+In the project we used SQLite DB to save data.
+
+## Backend & Frontend Connection
+In the project we used API to connect frontend to backend, and frontend is not directly connected to database. Frontend sends data to api or get data from api and backend edits database.
+
+## JWT
+We used JWT to authenticate users in the project.
