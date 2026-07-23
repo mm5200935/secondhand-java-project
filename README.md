@@ -15,10 +15,10 @@
 (https://github.com/mm5200935/secondhand-java-project/tree/main/docs/screenshots/admin%20panel/classification%20management%20_%20edit.JPG "Admin Panel Features")
 
 ## Team Members
-| # | Name | Tasks | Student Number | Email                                                       |
-|----------|----------|----------|----------|-------------------------------------------------------------|
+| # | Name | Tasks                                                                                                                             | Student Number | Email                                                       |
+|----------|----------|-----------------------------------------------------------------------------------------------------------------------------------|----------|-------------------------------------------------------------|
 | 1 | Mohammad Hasan Mahmoodian | Repository Management (Merge branches, Complete README), Completed API part and JWT in backend, Completed Admin Panel in FrontEnd | 40431051 | [m.mahmoodian@aut.ac.ir](mailto:m.mahmoodian@aut.ac.ir)     |
-| 2 | Erfan Simiyari | Completed models, services, database, ... in backend, Complete User Panel Part in Frontend | 40431420 | [erfan.simiyari@aut.ac.ir](mailto:erfan.simiyari@aut.ac.ir) |
+| 2 | Erfan Simiyari | Completed models, services, database, ... in backend, Complete User Panel Part in Frontend, Build Login page and Register page    | 40431420 | [erfan.simiyari@aut.ac.ir](mailto:erfan.simiyari@aut.ac.ir) |
 
 ## How to run project?
 * Clone the repository.
